@@ -17,6 +17,8 @@
 
 #include "CycleCountBackupRestore.h"
 
+#define __BCP "BatteryCycleCount: "
+
 namespace device {
 namespace sony {
 namespace health {
@@ -62,16 +64,16 @@ void CycleCountBackupRestore::Read(const std::string &path, int *bins) {
     std::string buffer;
 
     if (!android::base::ReadFileToString(path, &buffer)) {
-        LOG(ERROR) << "Failed to read " << path;
+        LOG(ERROR) << "Failed to read cycles from " << path;
         return;
     }
 
     buffer = ::android::base::Trim(buffer);
     std::vector<std::string> counts = android::base::Split(buffer, " ");
     if (counts.size() != (size_t)nb_buckets_) {
-        LOG(ERROR) << "data format \"" << buffer << "\" is wrong in " << path;
+        LOG(ERROR) << __BCP << "data format \"" << buffer << "\" is wrong in " << path;
     } else {
-        LOG(INFO) << "Read: \"" << buffer << "\" from " << path;
+        LOG(INFO) << __BCP << "Read \"" << buffer << "\" cycles from " << path;
         for (int i = 0; i < nb_buckets_; ++i) {
             bins[i] = std::stoi(counts[i]);
         }
@@ -88,9 +90,9 @@ void CycleCountBackupRestore::Write(int *bins, const std::string &path) {
         str_data += std::to_string(bins[i]);
     }
 
-    LOG(INFO) << "Write: \"" << str_data << "\" to " << path;
+    LOG(INFO) << __BCP << "Write \"" << str_data << "\" cycles to " << path;
     if (!android::base::WriteStringToFile(str_data, path))
-        LOG(ERROR) << "Write to " << path << " error: " << strerror(errno);
+        LOG(ERROR) << __BCP << "Write to " << path << " error: " << strerror(errno);
 }
 
 void CycleCountBackupRestore::UpdateAndSave() {

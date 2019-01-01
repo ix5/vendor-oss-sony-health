@@ -16,9 +16,8 @@
  */
 
 #define LOG_TAG "android.hardware.health@2.0-service.sony"
-/* check if necessary */
-#include <android-base/logging.h>
 
+#include <android-base/logging.h>
 #include <health2/service.h>
 /* frameworks/native/services/batteryservice/include/batteryservice/BatteryService.h */
 #include <batteryservice/BatteryService.h>
@@ -58,17 +57,11 @@ int healthd_board_battery_update(struct android::BatteryProperties *props)
     ccBackupRestore.Backup(props->batteryLevel);
     /* LOG(INFO) << "Saving learned capacity"; */
     lcBackupRestore.Backup();
-    /* get around unused variable error */
-    /* static struct android::BatteryProperties *thingy; */
-    /* thingy = props; */
-    /* battRechargingControl.updateBatteryProperties(props); */
     // return 0 to log periodic polled battery status to kernel log
     return 0;
 }
 
-/* or just `int main()` like the README from interfaces/health/? */
-/* int main(void) */
 int main()
 {
-    return health_service_main();
+    return health_service_main("sony");
 }

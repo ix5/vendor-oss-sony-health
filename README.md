@@ -29,9 +29,20 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.0-service.sony
 ```
 
+init.common.rc:
+```
+on fs
+    # For android.hardware.health@2.0-service.sony battery stats
+    mkdir /mnt/vendor/persist/battery 0700 system system
+```
+
 sepolicy file_contexts:
 ```
 /(system/vendor|vendor)/bin/hw/android\.hardware\.health@2\.0-service\.sony                  u:object_r:hal_health_default_exec:s0
+```
+sepolicy vendor_init.te:
+```
+allow vendor_init persist_battery_file:dir create_dir_perms;
 ```
 
 ## Terminology

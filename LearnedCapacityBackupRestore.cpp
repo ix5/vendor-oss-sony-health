@@ -17,6 +17,8 @@
 
 #include "LearnedCapacityBackupRestore.h"
 
+#define __LCP "LearnedCapacacity: "
+
 namespace device {
 namespace sony {
 namespace health {
@@ -40,14 +42,14 @@ void LearnedCapacityBackupRestore::ReadFromStorage() {
     std::string buffer;
 
     if (!android::base::ReadFileToString(std::string(kSysCFPersistFile), &buffer)) {
-        LOG(ERROR) << "Cannot read the storage file";
+        LOG(ERROR) << __LCP << "Cannot read the persist storage file";
         return;
     }
 
     if (sscanf(buffer.c_str(), "%d", &sw_cap_) < 1)
-        LOG(ERROR) << "data format is wrong in the storage file: " << buffer;
+        LOG(ERROR) << __LCP << "Data format is wrong in the persist storage file: " << buffer;
     else
-        LOG(INFO) << "Storage data: " << buffer;
+        LOG(INFO) << __LCP << " Read persist storage data: " << buffer << " max mAh";
 }
 
 void LearnedCapacityBackupRestore::SaveToStorage() {
@@ -55,26 +57,28 @@ void LearnedCapacityBackupRestore::SaveToStorage() {
 
     snprintf(strData, kBuffSize, "%d", sw_cap_);
 
-    LOG(INFO) << "Save to Storage: " << strData;
+    LOG(INFO) << __LCP << "Save to persist storage: " << strData << " max mAh";
 
     if (!android::base::WriteStringToFile(strData, std::string(kSysCFPersistFile)))
-        LOG(ERROR) << "Write file error: " << strerror(errno);
+        LOG(ERROR) << __LCP << "Write persist file error: " << strerror(errno);
 }
 
 void LearnedCapacityBackupRestore::ReadFromSRAM() {
     std::string buffer;
 
     if (!android::base::ReadFileToString(std::string(kChgFullFile), &buffer)) {
-        LOG(ERROR) << "Read cycle counter error: " << strerror(errno);
+        LOG(ERROR) << __LCP << "Read from SRAM error: " << strerror(errno);
         return;
     }
 
     buffer = android::base::Trim(buffer);
 
     if (sscanf(buffer.c_str(), "%d", &hw_cap_) < 1)
-        LOG(ERROR) << "Failed to parse SRAM bins: " << buffer;
-    else
-        LOG(INFO) << "SRAM data: " << buffer;
+        LOG(ERROR) << __LCP << "Failed to parse SRAM bins: " << buffer;
+    else {
+        /* TODO: Is it really mAh? */
+        LOG(INFO) << __LCP << "Read from SRAM: " << buffer << " mAh";
+    }
 }
 
 void LearnedCapacityBackupRestore::SaveToSRAM() {
@@ -82,10 +86,10 @@ void LearnedCapacityBackupRestore::SaveToSRAM() {
 
     snprintf(strData, kBuffSize, "%d", hw_cap_);
 
-    LOG(INFO) << "Save to SRAM: " << strData;
+    LOG(INFO) << __LCP << "Save to SRAM: " << strData << " max mAh";
 
     if (!android::base::WriteStringToFile(strData, std::string(kChgFullFile)))
-        LOG(ERROR) << "Write data error: " << strerror(errno);
+        LOG(ERROR) << __LCP << "Write to SRAM error: " << strerror(errno);
 }
 
 void LearnedCapacityBackupRestore::UpdateAndSave() {

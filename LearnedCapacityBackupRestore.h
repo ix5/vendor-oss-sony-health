@@ -18,6 +18,8 @@
 #ifndef DEVICE_SONY_HEALTH_LEARNEDCAPACITYBACKUPRESTORE_H
 #define DEVICE_SONY_HEALTH_LEARNEDCAPACITYBACKUPRESTORE_H
 
+#define LOG_TAG "android.hardware.health@2.0-service.sony"
+
 #include <android-base/file.h>
 #include <android-base/logging.h>
 #include <android-base/strings.h>
@@ -26,8 +28,6 @@
 namespace device {
 namespace sony {
 namespace health {
-
-#define LOG_TAG "android.hardware.health@2.0-service.sony"
 
 static constexpr char kChgFullFile[] = "/sys/class/power_supply/bms/charge_full";
 static constexpr char kSysCFPersistFile[] = "/mnt/vendor/persist/battery/qcom_charge_full";
