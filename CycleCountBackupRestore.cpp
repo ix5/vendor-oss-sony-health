@@ -101,17 +101,6 @@ void CycleCountBackupRestore::Write(int *bins, const std::string &path) {
         return;
     }
     LOG(INFO) << BCP__ << "Write \"" << str_data << "\" cycles to " << path;
-    // if (path == kPersistCycleFile) {
-    //     //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
-    //     LOG(VERBOSE) << BCP__ << "Backed up cycle count of \"" << str_data << "\" to " << kPersistCycleFile;
-    // } else if (path == kSysCycleFile) {
-    //     //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
-    //     LOG(VERBOSE) << BCP__ << "Restored cycle count of \"" << str_data << "\" from " << kPersistCycleFile;
-    // } else {
-    //     // Add case here to avoid this message
-    //     LOG(INFO) << BCP__ << "Wrote \"" << str_data << "\" to unknown file: " << path;
-    // }
-    // return;
 }
 
 void CycleCountBackupRestore::UpdateAndSave() {

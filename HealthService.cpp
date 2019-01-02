@@ -44,19 +44,15 @@ void healthd_board_init(struct healthd_config*)
 {
     /* TODO: Isn't this already implemented by kernel drivers/power/supply/qpnp-fg.c
      *       via cycle_counter stuff? */
-    /* LOG(INFO) << "Restoring cycle count"; */
     ccBackupRestore.Restore();
     /* TODO: Same for learned capacity, seems it is already handled fine by them bms */
-    /* LOG(INFO) << "Restoring learned capacity"; */
     lcBackupRestore.Restore();
 }
 
 /* int healthd_board_battery_update() { */
 int healthd_board_battery_update(struct android::BatteryProperties *props)
 {
-    /* LOG(INFO) << "Saving cycle count"; */
     ccBackupRestore.Backup(props->batteryLevel);
-    /* LOG(INFO) << "Saving learned capacity"; */
     lcBackupRestore.Backup();
     // return 0 to log periodic polled battery status to kernel log
     return 0;
