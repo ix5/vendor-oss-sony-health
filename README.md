@@ -75,8 +75,9 @@ allow vendor_init persist_battery_file:dir create_dir_perms;
 
 **Type-C terms:**
 
-- UFP = Upstream-facing port
-- DFP = Downstream-facing port
+- UFP = "Upstream-facing port", i.e. the port that flows towards the computer
+- DFP = "Downstream-facing port", i.e. the port that flows from the device
+  towards another device, perhaps USB audio output
 
 ## Sources
 

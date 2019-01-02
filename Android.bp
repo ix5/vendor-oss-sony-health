@@ -10,9 +10,10 @@ cc_binary {
         "LearnedCapacityBackupRestore.cpp",
     ],
 
-    cflags: [
+    cppflags: [
         "-Wall",
         "-Werror",
+        "-fexceptions",
     ],
 
     static_libs: [

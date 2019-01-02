@@ -27,33 +27,24 @@ namespace device {
 namespace sony {
 namespace health {
 
-/* crosshatch/marlin: */
-/* static constexpr char kSysCycleFile[] = "sys/class/power_supply/bms/device/cycle_counts_bins"; */
-/* static constexpr char kPersistCycleFile[] = "/persist/battery/qcom_cycle_counts_bins"; */
-/* TODO: Do we have cycle_count bins on newer devices? */
 static constexpr char kSysCycleFile[] = "/sys/class/power_supply/bms/cycle_count";
-static constexpr char kPersistCycleFile[] = "/mnt/vendor/persist/battery/qcom_cycle_count";
+static constexpr char kPersistCycleFile[] = "/mnt/vendor/persist/battery/battery_cycle_count";
 
 class CycleCountBackupRestore {
-  public:
-    CycleCountBackupRestore(int nb_buckets);
+   public:
+    CycleCountBackupRestore();
     void Restore();
     void Backup(int battery_level);
 
-  private:
-    int nb_buckets_;
-    int *sw_bins_;
-    int *hw_bins_;
+   private:
+    int sw_cycles_;
+    int hw_cycles_;
     int saved_soc_;
     int soc_inc_;
-    std::string sysfs_path_;
-    std::string persist_path_;
-    std::string serial_path_;
 
-    void Read(const std::string &path, int *bins);
-    void Write(int *bins, const std::string &path);
+    void Read(const std::string &path, int cycles);
+    void Write(int cycles, const std::string &path);
     void UpdateAndSave();
-    bool CheckSerial();
 };
 
 }  // namespace health
