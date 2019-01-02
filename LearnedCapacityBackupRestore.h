@@ -31,12 +31,12 @@ static constexpr char kSysChargeFullFile[] = "/sys/class/power_supply/bms/charge
 static constexpr char kPersistChargeFullFile[] = "/mnt/vendor/persist/battery/qcom_charge_full";
 
 class LearnedCapacityBackupRestore {
-  public:
+   public:
     LearnedCapacityBackupRestore();
     void Restore();
     void Backup();
 
-  private:
+   private:
     int sw_cap_;
     int hw_cap_;
 

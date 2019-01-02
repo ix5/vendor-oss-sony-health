@@ -29,8 +29,7 @@ static constexpr int kBackupTrigger = 20;
 CycleCountBackupRestore::CycleCountBackupRestore(int nb_buckets)
     : nb_buckets_(nb_buckets),
       saved_soc_(-1),
-      soc_inc_(0)
-{
+      soc_inc_(0) {
     sw_bins_ = new int[nb_buckets];
     memset(sw_bins_, 0, sizeof(sw_bins_));
     hw_bins_ = new int[nb_buckets];

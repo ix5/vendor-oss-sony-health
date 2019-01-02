@@ -49,8 +49,7 @@ void LearnedCapacityBackupRestore::ReadFromStorage() {
         return;
     }
 
-    if (sscanf(buffer.c_str(), "%d", &sw_cap_) < 1)
-    {
+    if (sscanf(buffer.c_str(), "%d", &sw_cap_) < 1) {
         LOG(ERROR) << "Data format is wrong in the persist storage file: " << buffer;
     } else {
         /* TODO: Is it really mAh? */
@@ -80,8 +79,7 @@ void LearnedCapacityBackupRestore::ReadFromSRAM() {
 
     buffer = android::base::Trim(buffer);
 
-    if (sscanf(buffer.c_str(), "%d", &hw_cap_) < 1)
-    {
+    if (sscanf(buffer.c_str(), "%d", &hw_cap_) < 1) {
         LOG(ERROR) << "Failed to parse SRAM bins: " << buffer;
     } else {
         /* TODO: Is it really mAh? */

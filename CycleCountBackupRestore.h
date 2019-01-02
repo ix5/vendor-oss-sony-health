@@ -35,12 +35,12 @@ static constexpr char kSysCycleFile[] = "/sys/class/power_supply/bms/cycle_count
 static constexpr char kPersistCycleFile[] = "/mnt/vendor/persist/battery/qcom_cycle_count";
 
 class CycleCountBackupRestore {
-  public:
+   public:
     CycleCountBackupRestore(int nb_buckets);
     void Restore();
     void Backup(int battery_level);
 
-  private:
+   private:
     int nb_buckets_;
     int *sw_bins_;
     int *hw_bins_;
