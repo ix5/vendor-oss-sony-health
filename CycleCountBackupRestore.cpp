@@ -96,19 +96,22 @@ void CycleCountBackupRestore::Write(int *bins, const std::string &path) {
         str_data += std::to_string(bins[i]);
     }
 
-    // TODO: Use more gene_BCP << "Write to " << path << " error: " << strerror(errno);
-    //    return -1;
-    if (path == kPersistCycleFile) {
-        //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
-        LOG(VERBOSE) << BCP__ << "Backed up cycle count of \"" << str_data << "\" to " << kPersistCycleFile;
-    } else if (path == kSysCycleFile) {
-        //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
-        LOG(VERBOSE) << BCP__ << "Restored cycle count of \"" << str_data << "\" from " << kPersistCycleFile;
-    } else {
-        // Add case here to avoid this message
-        LOG(INFO) << BCP__ << "Wrote \"" << str_data << "\" to unknown file: " << path;
+    if (!android::base::WriteStringToFile(str_data, path)) {
+        LOG(ERROR) << BCP__ << "Write to " << path << " error: " << strerror(errno);
+        return;
     }
-    //return;
+    LOG(INFO) << BCP__ << "Write \"" << str_data << "\" cycles to " << path;
+    // if (path == kPersistCycleFile) {
+    //     //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
+    //     LOG(VERBOSE) << BCP__ << "Backed up cycle count of \"" << str_data << "\" to " << kPersistCycleFile;
+    // } else if (path == kSysCycleFile) {
+    //     //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
+    //     LOG(VERBOSE) << BCP__ << "Restored cycle count of \"" << str_data << "\" from " << kPersistCycleFile;
+    // } else {
+    //     // Add case here to avoid this message
+    //     LOG(INFO) << BCP__ << "Wrote \"" << str_data << "\" to unknown file: " << path;
+    // }
+    // return;
 }
 
 void CycleCountBackupRestore::UpdateAndSave() {
@@ -123,26 +126,10 @@ void CycleCountBackupRestore::UpdateAndSave() {
             backup = true;
         }
     }
-    //int ret;
     if (restore)
-    {
-        //ret = Write(hw_bins_, kSysCycleFile);
         Write(hw_bins_, kSysCycleFile);
-        //if (ret == 0)
-        //    LOG(VERBOSE) << BCP__ << "Restored cycle count from " << kPersistCycleFile;
-    }
     if (backup)
-    {
-        //ret = Write(sw_bins_, kPersistCycleFile);
         Write(sw_bins_, kPersistCycleFile);
-#if 0
-        if (ret == 0)
-        {
-            //LOG(VERBOSE) << BCP__ << "Write \"" << str_data << "\" cycles to " << kPersistCycleFile;
-            LOG(VERBOSE) << BCP__ << "Backed up cycle count to " << kPersistCycleFile;
-        }
-#endif
-    }
 }
 
 }  // namespace health

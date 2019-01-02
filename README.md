@@ -35,6 +35,23 @@ on fs
     # For android.hardware.health@2.0-service.sony battery stats
     mkdir /mnt/vendor/persist/battery 0700 system system
 ```
+(or let health@sony.rc do it)
+```
+service vendor-health...
+    class hal
+    # Use dynamic HALs?
+    # see https://source.android.com/devices/architecture/hal/dynamic-lifecycle
+    # init language extension, provides information of what service is served
+    # if multiple interfaces are served, they can be specified one on each line
+    interface android.hardware.health@2.0::IHealth default
+    # restarted if hwservicemanager dies
+    # would also cause the hal to start early during boot if oneshot wasn't set
+    # will not be restarted if it exits until it is requested to be restarted
+    oneshot
+    # will only be started when requested
+    disabled
+```
+
 
 sepolicy file_contexts:
 ```

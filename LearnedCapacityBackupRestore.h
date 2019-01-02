@@ -27,8 +27,8 @@ namespace device {
 namespace sony {
 namespace health {
 
-static constexpr char kChgFullFile[] = "/sys/class/power_supply/bms/charge_full";
-static constexpr char kSysCFPersistFile[] = "/mnt/vendor/persist/battery/qcom_charge_full";
+static constexpr char kSysChargeFullFile[] = "/sys/class/power_supply/bms/charge_full";
+static constexpr char kPersistChargeFullFile[] = "/mnt/vendor/persist/battery/qcom_charge_full";
 
 class LearnedCapacityBackupRestore {
   public:

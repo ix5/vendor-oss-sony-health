@@ -64,5 +64,8 @@ int healthd_board_battery_update(struct android::BatteryProperties *props)
 
 int main()
 {
-    return health_service_main("sony");
+    return health_service_main();
+    // Hosting our own interface(i.e. not "default") will result in boot failure
+    // since Android wants android.hardware.health@2.0::IHealth/defaul
+    //return health_service_main("sony");
 }
