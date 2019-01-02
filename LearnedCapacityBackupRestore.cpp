@@ -17,7 +17,12 @@
 
 #include "LearnedCapacityBackupRestore.h"
 
+/* TODO: Log tag here or in header? */
+#define LOG_TAG "android.hardware.health@2.0-service.sony"
+
 #define __LCP "LearnedCapacacity: "
+/* TODO: Improve log messages, e.g. "SRAM" is a lil non-friendly */
+/* Better: "Saved learned maximum capacity of <x> mAh to persist storage" */
 
 namespace device {
 namespace sony {
@@ -47,9 +52,12 @@ void LearnedCapacityBackupRestore::ReadFromStorage() {
     }
 
     if (sscanf(buffer.c_str(), "%d", &sw_cap_) < 1)
+    {
         LOG(ERROR) << __LCP << "Data format is wrong in the persist storage file: " << buffer;
-    else
+    } else {
+        /* TODO: Is it really mAh? */
         LOG(INFO) << __LCP << " Read persist storage data: " << buffer << " max mAh";
+    }
 }
 
 void LearnedCapacityBackupRestore::SaveToStorage() {
@@ -57,6 +65,7 @@ void LearnedCapacityBackupRestore::SaveToStorage() {
 
     snprintf(strData, kBuffSize, "%d", sw_cap_);
 
+    /* TODO: Is it really mAh? */
     LOG(INFO) << __LCP << "Save to persist storage: " << strData << " max mAh";
 
     if (!android::base::WriteStringToFile(strData, std::string(kSysCFPersistFile)))
@@ -74,8 +83,9 @@ void LearnedCapacityBackupRestore::ReadFromSRAM() {
     buffer = android::base::Trim(buffer);
 
     if (sscanf(buffer.c_str(), "%d", &hw_cap_) < 1)
+    {
         LOG(ERROR) << __LCP << "Failed to parse SRAM bins: " << buffer;
-    else {
+    } else {
         /* TODO: Is it really mAh? */
         LOG(INFO) << __LCP << "Read from SRAM: " << buffer << " mAh";
     }
@@ -86,6 +96,7 @@ void LearnedCapacityBackupRestore::SaveToSRAM() {
 
     snprintf(strData, kBuffSize, "%d", hw_cap_);
 
+    /* TODO: Is it really mAh? */
     LOG(INFO) << __LCP << "Save to SRAM: " << strData << " max mAh";
 
     if (!android::base::WriteStringToFile(strData, std::string(kChgFullFile)))

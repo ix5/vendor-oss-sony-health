@@ -17,7 +17,12 @@
 
 #include "CycleCountBackupRestore.h"
 
-#define __BCP "BatteryCycleCount: "
+/* TODO: Log tag here or in header? */
+#define LOG_TAG "android.hardware.health@2.0-service.sony"
+
+// LOG_LEVEL = 6?
+
+#define BCP__ "BatteryCycleCount: "
 
 namespace device {
 namespace sony {
@@ -37,8 +42,8 @@ CycleCountBackupRestore::CycleCountBackupRestore(int nb_buckets)
 }
 
 void CycleCountBackupRestore::Restore() {
-    Read(kSysPersistFile, sw_bins_);
-    Read(kCycCntFile, hw_bins_);
+    Read(kPersistCycleFile, sw_bins_);
+    Read(kSysCycleFile, hw_bins_);
     UpdateAndSave();
 }
 
@@ -54,7 +59,7 @@ void CycleCountBackupRestore::Backup(int battery_level) {
     saved_soc_ = battery_level;
     // To avoid writting file too often just rate limit it
     if (soc_inc_ >= kBackupTrigger) {
-        Read(kCycCntFile, hw_bins_);
+        Read(kSysCycleFile, hw_bins_);
         UpdateAndSave();
         soc_inc_ = 0;
     }
@@ -64,22 +69,23 @@ void CycleCountBackupRestore::Read(const std::string &path, int *bins) {
     std::string buffer;
 
     if (!android::base::ReadFileToString(path, &buffer)) {
-        LOG(ERROR) << "Failed to read cycles from " << path;
+        LOG(ERROR) << BCP__ << "Failed to read cycles from " << path;
         return;
     }
 
     buffer = ::android::base::Trim(buffer);
     std::vector<std::string> counts = android::base::Split(buffer, " ");
     if (counts.size() != (size_t)nb_buckets_) {
-        LOG(ERROR) << __BCP << "data format \"" << buffer << "\" is wrong in " << path;
+        LOG(ERROR) << BCP__ << "data format \"" << buffer << "\" is wrong in " << path;
     } else {
-        LOG(INFO) << __BCP << "Read \"" << buffer << "\" cycles from " << path;
+        LOG(INFO) << BCP__ << "Read \"" << buffer << "\" cycles from " << path;
         for (int i = 0; i < nb_buckets_; ++i) {
             bins[i] = std::stoi(counts[i]);
         }
     }
 }
 
+//int CycleCountBackupRestore::Write(int *bins, const std::string &path) {
 void CycleCountBackupRestore::Write(int *bins, const std::string &path) {
     std::string str_data = "";
 
@@ -90,9 +96,19 @@ void CycleCountBackupRestore::Write(int *bins, const std::string &path) {
         str_data += std::to_string(bins[i]);
     }
 
-    LOG(INFO) << __BCP << "Write \"" << str_data << "\" cycles to " << path;
-    if (!android::base::WriteStringToFile(str_data, path))
-        LOG(ERROR) << __BCP << "Write to " << path << " error: " << strerror(errno);
+    // TODO: Use more gene_BCP << "Write to " << path << " error: " << strerror(errno);
+    //    return -1;
+    if (path == kPersistCycleFile) {
+        //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
+        LOG(VERBOSE) << BCP__ << "Backed up cycle count of \"" << str_data << "\" to " << kPersistCycleFile;
+    } else if (path == kSysCycleFile) {
+        //LOG(VERBOSE) << BCP__ << "Wrote \"" << str_data << "\" cycles to " << path;
+        LOG(VERBOSE) << BCP__ << "Restored cycle count of \"" << str_data << "\" from " << kPersistCycleFile;
+    } else {
+        // Add case here to avoid this message
+        LOG(INFO) << BCP__ << "Wrote \"" << str_data << "\" to unknown file: " << path;
+    }
+    //return;
 }
 
 void CycleCountBackupRestore::UpdateAndSave() {
@@ -107,10 +123,26 @@ void CycleCountBackupRestore::UpdateAndSave() {
             backup = true;
         }
     }
+    //int ret;
     if (restore)
-        Write(hw_bins_, kCycCntFile);
+    {
+        //ret = Write(hw_bins_, kSysCycleFile);
+        Write(hw_bins_, kSysCycleFile);
+        //if (ret == 0)
+        //    LOG(VERBOSE) << BCP__ << "Restored cycle count from " << kPersistCycleFile;
+    }
     if (backup)
-        Write(sw_bins_, kSysPersistFile);
+    {
+        //ret = Write(sw_bins_, kPersistCycleFile);
+        Write(sw_bins_, kPersistCycleFile);
+#if 0
+        if (ret == 0)
+        {
+            //LOG(VERBOSE) << BCP__ << "Write \"" << str_data << "\" cycles to " << kPersistCycleFile;
+            LOG(VERBOSE) << BCP__ << "Backed up cycle count to " << kPersistCycleFile;
+        }
+#endif
+    }
 }
 
 }  // namespace health

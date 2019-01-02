@@ -18,8 +18,6 @@
 #ifndef DEVICE_SONY_HEALTH_CYCLECOUNTBACKUPRESTORE_H
 #define DEVICE_SONY_HEALTH_CYCLECOUNTBACKUPRESTORE_H
 
-#define LOG_TAG "android.hardware.health@2.0-service.sony"
-
 #include <android-base/file.h>
 #include <android-base/logging.h>
 #include <android-base/strings.h>
@@ -29,10 +27,12 @@ namespace device {
 namespace sony {
 namespace health {
 
-/* static constexpr char kCycCntFile[] = "sys/class/power_supply/bms/device/cycle_counts_bins"; */
-/* static constexpr char kSysPersistFile[] = "/persist/battery/qcom_cycle_counts_bins"; */
-static constexpr char kCycCntFile[] = "/sys/class/power_supply/bms/cycle_count";
-static constexpr char kSysPersistFile[] = "/mnt/vendor/persist/battery/qcom_cycle_count";
+/* crosshatch/marlin: */
+/* static constexpr char kSysCycleFile[] = "sys/class/power_supply/bms/device/cycle_counts_bins"; */
+/* static constexpr char kPersistCycleFile[] = "/persist/battery/qcom_cycle_counts_bins"; */
+/* TODO: Do we have cycle_count bins on newer devices? */
+static constexpr char kSysCycleFile[] = "/sys/class/power_supply/bms/cycle_count";
+static constexpr char kPersistCycleFile[] = "/mnt/vendor/persist/battery/qcom_cycle_count";
 
 class CycleCountBackupRestore {
   public:

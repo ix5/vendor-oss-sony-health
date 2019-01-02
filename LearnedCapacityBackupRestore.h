@@ -18,8 +18,6 @@
 #ifndef DEVICE_SONY_HEALTH_LEARNEDCAPACITYBACKUPRESTORE_H
 #define DEVICE_SONY_HEALTH_LEARNEDCAPACITYBACKUPRESTORE_H
 
-#define LOG_TAG "android.hardware.health@2.0-service.sony"
-
 #include <android-base/file.h>
 #include <android-base/logging.h>
 #include <android-base/strings.h>

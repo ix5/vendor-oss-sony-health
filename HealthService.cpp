@@ -20,10 +20,8 @@
 #include <android-base/logging.h>
 #include <health2/service.h>
 /* frameworks/native/services/batteryservice/include/batteryservice/BatteryService.h */
+/* no need to include healthd.h or health2/Health.h */
 #include <batteryservice/BatteryService.h>
-/* no need to include healthd */
-/* #include <health2/Health.h> */
-/* #include <hidl/HidlTransportSupport.h> */
 
 #include "CycleCountBackupRestore.h"
 #include "LearnedCapacityBackupRestore.h"
@@ -44,8 +42,11 @@ namespace {
 /* health_config! */
 void healthd_board_init(struct healthd_config*)
 {
+    /* TODO: Isn't this already implemented by kernel drivers/power/supply/qpnp-fg.c
+     *       via cycle_counter stuff? */
     /* LOG(INFO) << "Restoring cycle count"; */
     ccBackupRestore.Restore();
+    /* TODO: Same for learned capacity, seems it is already handled fine by them bms */
     /* LOG(INFO) << "Restoring learned capacity"; */
     lcBackupRestore.Restore();
 }

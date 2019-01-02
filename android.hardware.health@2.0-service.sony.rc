@@ -3,7 +3,18 @@ on fs
     mkdir /mnt/vendor/persist/battery 0700 system system
 
 service vendor.health-hal-2-0 /vendor/bin/hw/android.hardware.health@2.0-service.sony
+    # Use dynamic HALs?
+    # see https://source.android.com/devices/architecture/hal/dynamic-lifecycle
+    # init language extension, provides information of what service is served
+    # if multiple interfaces are served, they can be specified one on each line
+    #interface android.hardware.health@2.0::IHealth default
+    # restarted if hwservicemanager dies
+    # would also cause the hal to start early during boot if oneshot wasn't set
     class hal
+    # will not be restarted if it exits until it is requested to be restarted
+    #oneshot
+    # will only be started when requested
+    #disabled
     user system
     group system
     file /dev/kmsg w
