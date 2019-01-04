@@ -40,7 +40,7 @@ void CycleCountBackupRestore::Restore() {
      * battery, or instruct them to wipe /persist/battery/. */
     Read(kPersistCycleFile, sw_cycles_);
     Read(kSysCycleFile, hw_cycles_);
-    /* UpdateAndSave(); */
+    UpdateAndSave();
 }
 
 void CycleCountBackupRestore::Backup(int battery_level) {
@@ -56,7 +56,7 @@ void CycleCountBackupRestore::Backup(int battery_level) {
     // To avoid writting file too often just rate limit it
     if (soc_inc_ >= kBackupTrigger) {
         Read(kSysCycleFile, hw_cycles_);
-        /* UpdateAndSave(); */
+        UpdateAndSave();
         soc_inc_ = 0;
     }
 }
@@ -95,7 +95,8 @@ void CycleCountBackupRestore::Write(int cycles, const std::string &path) {
 void CycleCountBackupRestore::UpdateAndSave() {
     if (hw_cycles_ < sw_cycles_) {
         hw_cycles_ = sw_cycles_;
-        Write(hw_cycles_, kSysCycleFile);
+        // Disable writing to sysfs for now to rule out stupidity
+        /* Write(hw_cycles_, kSysCycleFile); */
     } else if (hw_cycles_ > sw_cycles_) {
         sw_cycles_ = hw_cycles_;
         Write(sw_cycles_, kPersistCycleFile);
