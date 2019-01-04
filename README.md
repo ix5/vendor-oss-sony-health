@@ -27,6 +27,9 @@ common-treble.mk:
 # Health (in addition to own board libhealth)
 PRODUCT_PACKAGES += \
     android.hardware.health@2.0-service.sony
+# Remove deprecated backup healthd
+DEVICE_FRAMEWORK_MANIFEST_FILE += \
+    system/libhidl/vintfdata/manifest_healthd_exclude.xml
 ```
 
 init.common.rc:
@@ -79,6 +82,12 @@ allow vendor_init persist_battery_file:dir create_dir_perms;
 - DFP = "Downstream-facing port", i.e. the port that flows from the device
   towards another device, perhaps USB audio output
 
+**Internals:**
+- CC/CV = Constant current / constant voltage (CC/CV)
+  For lithium batteries: When nearly depleted, use constant current for
+  charging. When approaching max voltage, use contant voltage.
+
 ## Sources
 
 - [The Basics of USB charging](https://www.maximintegrated.com/en/app-notes/index.mvp/id/4803)
+- [What is CC/CV mode?](http://www.bestgopower.com/faq/27-what-is-cc-cv-mode.html)
