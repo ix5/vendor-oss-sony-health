@@ -7,9 +7,11 @@ Check:
 - frameworks/native/services/batteryservice/include/batteryservice/BatteryService.h
 - frameworks/native/services/sensorservice/BatteryService.h
 - frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
-- frameworks/base/core/jni/com_android_server_AlarmManagerService.cpp
+- frameworks/base/services/core/jni/com_android_server_AlarmManagerService.cpp
+- kernel: fs/timerfd.c for timerfd_create() from healthd_common.cpp, included
+  through the android.hardware.health@2.0-impl shared_lib
 
-Add to common/vintf/manifest.xml before vendor.display.config:
+Add to common/vintf/manifest.xml, e.g. before vendor.display.config:
 ```
     <hal format="hidl">
         <name>android.hardware.health</name>
@@ -32,30 +34,6 @@ DEVICE_FRAMEWORK_MANIFEST_FILE += \
     system/libhidl/vintfdata/manifest_healthd_exclude.xml
 ```
 
-init.common.rc:
-```
-on fs
-    # For android.hardware.health@2.0-service.sony battery stats
-    mkdir /mnt/vendor/persist/battery 0700 system system
-```
-(or let health@sony.rc do it)
-```
-service vendor-health...
-    class hal
-    # Use dynamic HALs?
-    # see https://source.android.com/devices/architecture/hal/dynamic-lifecycle
-    # init language extension, provides information of what service is served
-    # if multiple interfaces are served, they can be specified one on each line
-    interface android.hardware.health@2.0::IHealth default
-    # restarted if hwservicemanager dies
-    # would also cause the hal to start early during boot if oneshot wasn't set
-    # will not be restarted if it exits until it is requested to be restarted
-    oneshot
-    # will only be started when requested
-    disabled
-```
-
-
 sepolicy file_contexts:
 ```
 /(system/vendor|vendor)/bin/hw/android\.hardware\.health@2\.0-service\.sony                  u:object_r:hal_health_default_exec:s0
@@ -68,6 +46,7 @@ allow vendor_init persist_battery_file:dir create_dir_perms;
 ## Terminology
 
 - SoC = State of Charge from 0-100% (n.b. SoC is normally understood to mean System-on-chip)
+- FG = Fuel Gauge, similar to SoC
 - BMS = Battery Management System
 
 **USB terms**
@@ -86,6 +65,10 @@ allow vendor_init persist_battery_file:dir create_dir_perms;
 - CC/CV = Constant current / constant voltage (CC/CV)
   For lithium batteries: When nearly depleted, use constant current for
   charging. When approaching max voltage, use contant voltage.
+- OCV = Open circuit voltage
+- CC = Coulomb counter
+- PMIC, SPMI = ...
+- FCC = Full charge capacity
 
 ## Sources
 

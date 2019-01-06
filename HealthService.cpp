@@ -33,13 +33,12 @@ static CycleCountBackupRestore ccBackupRestore;
 static LearnedCapacityBackupRestore lcBackupRestore;
 }  // anonymous namespace
 
-/* the pointer behind healthd_config has meaning here! do not put it in front of */
+/* The pointer behind healthd_config has meaning here! Do not put it in front of */
 /* health_config! */
 void healthd_board_init(struct healthd_config *) {
     /* TODO: Isn't this already implemented by kernel drivers/power/supply/qpnp-fg.c
      *       via cycle_counter stuff? */
-    /* TODO: FIXME: Stop restoring for now to check whether cycle count is borked */
-    /* ccBackupRestore.Restore(); */
+    ccBackupRestore.Restore();
     /* TODO: Same for learned capacity, seems it is already handled fine by them bms */
     lcBackupRestore.Restore();
 }
@@ -56,7 +55,10 @@ int main() {
     return health_service_main();
     // Hosting our own interface(i.e. not "default") will result in boot failure
     // since Android wants android.hardware.health@2.0::IHealth/defaul
-    // We could however start a second interface, but there's no reason to
-    // since we only want to implement the default one.
+    // We could however start a second interface, but there's no reason to at the moment
+    // since we only want to implement the default one. In case we decide to
+    // launch a second interface at some point in the future, note that the
+    // manifest needs to be amended as well, and a second interface needs to be
+    // added to the .rc file too.
     //return health_service_main("sony");
 }

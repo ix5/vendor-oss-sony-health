@@ -1,7 +1,6 @@
 cc_binary {
     name: "android.hardware.health@2.0-service.sony",
     init_rc: ["android.hardware.health@2.0-service.sony.rc"],
-    //proprietary: true,
     vendor: true,
     relative_install_path: "hw",
     srcs: [
@@ -10,7 +9,7 @@ cc_binary {
         "LearnedCapacityBackupRestore.cpp",
     ],
 
-    cppflags: [
+    cflags: [
         "-Wall",
         "-Werror",
         "-fexceptions",
@@ -35,6 +34,13 @@ cc_binary {
     ],
 
     header_libs: ["libhealthd_headers"],
+
+    // Only availbale in current Android Q master.
+    // Nead to remove health section from common/vintf/manifext.xml as well
+    // once we decide to use this instead.
+    //vintf_fragments: [
+    //    "manifest_android.hardware.health@2.0.xml",
+    //],
 
     overrides: [
         "healthd",

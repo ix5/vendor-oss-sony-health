@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "android.hardware.health@2.0-service.sony:BatteryCycleCount"
-
 #include <stdexcept>
 
 #include "CycleCountBackupRestore.h"
@@ -73,7 +71,7 @@ void CycleCountBackupRestore::Read(const std::string &path, int cycles) {
     try {
         cycles = std::stoi(buffer);
     } catch (std::out_of_range &e) {
-        LOG(ERROR) << "Cycle count in persist storage file is out of bounds: " << path;
+        LOG(ERROR) << "Battery cycle count in persist storage file is out of bounds: " << path;
         return;
     } catch (std::invalid_argument &e) {
         LOG(ERROR) << "Data format is wrong in persist storage file: " << path;
@@ -86,7 +84,7 @@ void CycleCountBackupRestore::Write(int cycles, const std::string &path) {
     std::string str_data = std::to_string(cycles);
 
     if (!android::base::WriteStringToFile(str_data, path)) {
-        LOG(ERROR) << "Write to " << path << " error: " << strerror(errno);
+        LOG(ERROR) << "Write battery cycles to " << path << " error: " << strerror(errno);
         return;
     }
     LOG(INFO) << "Wrote " << str_data << " battery cycles to " << path;
