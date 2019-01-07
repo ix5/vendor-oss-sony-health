@@ -54,7 +54,7 @@ int healthd_board_battery_update(struct android::BatteryProperties *props) {
 int main() {
     return health_service_main();
     // Hosting our own interface(i.e. not "default") will result in boot failure
-    // since Android wants android.hardware.health@2.0::IHealth/defaul
+    // since Android wants android.hardware.health@2.0::IHealth/default
     // We could however start a second interface, but there's no reason to at the moment
     // since we only want to implement the default one. In case we decide to
     // launch a second interface at some point in the future, note that the
