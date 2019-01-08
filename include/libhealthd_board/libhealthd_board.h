@@ -9,4 +9,4 @@ void healthd_board_init(struct healthd_config *);
 
 int healthd_board_battery_update(struct android::BatteryProperties *props);
 
-#endif // DEVICE_SONY_HEALTH_LIBHEALTHD_H
+#endif  // DEVICE_SONY_HEALTH_LIBHEALTHD_H

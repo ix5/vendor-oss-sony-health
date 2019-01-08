@@ -15,4 +15,4 @@ void health_board_battery_update(struct android::BatteryProperties *props);
 }  // namespace sony
 }  // namespace device
 
-#endif // DEVICE_SONY_HEALTH_HEALTH_COMMON_H
+#endif  // DEVICE_SONY_HEALTH_HEALTH_COMMON_H

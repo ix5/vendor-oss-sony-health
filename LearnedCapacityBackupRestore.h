@@ -20,8 +20,8 @@
 
 #include <string>
 
-#include <android-base/logging.h>
 #include <android-base/file.h>
+#include <android-base/logging.h>
 #include <android-base/strings.h>
 
 namespace device {

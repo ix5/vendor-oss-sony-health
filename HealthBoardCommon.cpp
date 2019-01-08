@@ -30,7 +30,7 @@ using ::device::sony::health::CycleCountBackupRestore;
 using ::device::sony::health::LearnedCapacityBackupRestore;
 static CycleCountBackupRestore ccBackupRestore;
 static LearnedCapacityBackupRestore lcBackupRestore;
-}
+}  // namespace
 
 namespace device {
 namespace sony {

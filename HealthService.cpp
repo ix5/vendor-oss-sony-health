@@ -25,7 +25,6 @@
 #include <libhealthd_board/libhealthd_board.h>
 
 int main() {
-
     /* Setting the instance name explicitly is better */
     return health_service_main("default");
 
@@ -41,5 +40,4 @@ int main() {
     /* After healthd_init() is done, healthd_common.cpp starts healthd_mainloop() */
     /* The mainloop then sets up some polling and runs forever, reacting to */
     /* "SUBSYSTEM=power_supply" uevents and setting timers */
-
 }
