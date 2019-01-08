@@ -18,10 +18,11 @@
 #ifndef DEVICE_SONY_HEALTH_LEARNEDCAPACITYBACKUPRESTORE_H
 #define DEVICE_SONY_HEALTH_LEARNEDCAPACITYBACKUPRESTORE_H
 
-#include <android-base/file.h>
-#include <android-base/logging.h>
-#include <android-base/strings.h>
 #include <string>
+
+#include <android-base/logging.h>
+#include <android-base/file.h>
+#include <android-base/strings.h>
 
 namespace device {
 namespace sony {

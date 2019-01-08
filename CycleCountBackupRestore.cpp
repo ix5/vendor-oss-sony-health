@@ -1,4 +1,9 @@
 /*
+ * Read battery cycle count from sysfs, then compare with value stored in
+ * /mnt/vendor/persist/battery/battery_cycle_count.
+ * If one is higher than the other, restore the higher value.
+ *
+ *
  * Copyright (C) 2018 The Android Open Source Project
  * Copyright (C) 2019 Felix Elsner
  *
@@ -14,8 +19,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <stdexcept>
 
 #include "CycleCountBackupRestore.h"
 
@@ -33,9 +36,9 @@ CycleCountBackupRestore::CycleCountBackupRestore() {
 }
 
 void CycleCountBackupRestore::Restore() {
-    /* Sadly our battery driver doesn't seem to report a battery
-     * serial number, so we have to assume users never change
-     * battery, or instruct them to wipe /persist/battery/. */
+    /* Our battery driver doesn't seem to report a battery
+     * serial number, so we have to instruct users to wipe
+     * /mnt/vendor/persist/battery/ when they swap batteries */
     Read(kPersistCycleFile, sw_cycles_);
     Read(kSysCycleFile, hw_cycles_);
     UpdateAndSave();
@@ -93,8 +96,7 @@ void CycleCountBackupRestore::Write(int cycles, const std::string &path) {
 void CycleCountBackupRestore::UpdateAndSave() {
     if (hw_cycles_ < sw_cycles_) {
         hw_cycles_ = sw_cycles_;
-        // Disable writing to sysfs for now to rule out stupidity
-        /* Write(hw_cycles_, kSysCycleFile); */
+        Write(hw_cycles_, kSysCycleFile);
     } else if (hw_cycles_ > sw_cycles_) {
         sw_cycles_ = hw_cycles_;
         Write(sw_cycles_, kPersistCycleFile);

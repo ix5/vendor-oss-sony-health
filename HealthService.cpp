@@ -1,4 +1,6 @@
 /*
+ * Entrypoint for the main HAL service.
+ *
  * Copyright (C) 2018 The Android Open Source Project
  * Copyright (C) 2019 Felix Elsner
  *
@@ -17,48 +19,27 @@
 
 #define LOG_TAG "android.hardware.health@2.0-service.sony"
 
-#include <android-base/logging.h>
+/* For health_service_main() */
 #include <health2/service.h>
-/* frameworks/native/services/batteryservice/include/batteryservice/BatteryService.h */
-/* no need to include healthd.h or health2/Health.h */
-#include <batteryservice/BatteryService.h>
 
-#include "CycleCountBackupRestore.h"
-#include "LearnedCapacityBackupRestore.h"
-
-namespace {
-using ::device::sony::health::CycleCountBackupRestore;
-using ::device::sony::health::LearnedCapacityBackupRestore;
-static CycleCountBackupRestore ccBackupRestore;
-static LearnedCapacityBackupRestore lcBackupRestore;
-}  // anonymous namespace
-
-/* The pointer behind healthd_config has meaning here! Do not put it in front of */
-/* health_config! */
-void healthd_board_init(struct healthd_config *) {
-    /* TODO: Isn't this already implemented by kernel drivers/power/supply/qpnp-fg.c
-     *       via cycle_counter stuff? */
-    ccBackupRestore.Restore();
-    /* TODO: Same for learned capacity, seems it is already handled fine by them bms */
-    lcBackupRestore.Restore();
-}
-
-/* int healthd_board_battery_update() { */
-int healthd_board_battery_update(struct android::BatteryProperties *props) {
-    ccBackupRestore.Backup(props->batteryLevel);
-    lcBackupRestore.Backup();
-    // return 0 to log periodic polled battery status to kernel log
-    return 0;
-}
+#include <libhealthd_board/libhealthd_board.h>
 
 int main() {
-    return health_service_main();
-    // Hosting our own interface(i.e. not "default") will result in boot failure
-    // since Android wants android.hardware.health@2.0::IHealth/default
-    // We could however start a second interface, but there's no reason to at the moment
-    // since we only want to implement the default one. In case we decide to
-    // launch a second interface at some point in the future, note that the
-    // manifest needs to be amended as well, and a second interface needs to be
-    // added to the .rc file too.
-    //return health_service_main("sony");
+
+    /* Setting the instance name explicitly is better */
+    return health_service_main("default");
+
+    /* health_service_main() from libhealthservice:HealthServiceCommon.cpp */
+    /* sets: healthd_mode_ops = &healthd_mode_service_2_0_ops, */
+    /* returns healthd_main() from health@2.0/healthd_common.cpp */
+    /* healthd_main() runs healthd_init(): */
+    /*  -> healthd_mode_ops->init(&healthd_config), */
+    /*     ( + wakealarm_init(), uevent_init() ) */
+    /* healthd_mode_ops->init is HealthServiceCommon.cpp:healthd_mode_service_2_0_init() */
+    /* healthd_mode_service_2_0_init() then starts up the IHealth instance via */
+    /* IHealth service = Health::initInstance(config); */
+    /* After healthd_init() is done, healthd_common.cpp starts healthd_mainloop() */
+    /* The mainloop then sets up some polling and runs forever, reacting to */
+    /* "SUBSYSTEM=power_supply" uevents and setting timers */
+
 }

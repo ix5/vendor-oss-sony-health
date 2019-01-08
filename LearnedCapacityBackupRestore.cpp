@@ -1,4 +1,9 @@
 /*
+ * Read maximum battery capacity from sysfs, then compare with
+ * value stored in /mnt/vendor/persist/battery/battery_charge_full.
+ * If one is lower than the other, restore the lower value.
+ *
+ *
  * Copyright (C) 2018 The Android Open Source Project
  * Copyright (C) 2019 Felix Elsner
  *
@@ -17,14 +22,14 @@
 
 #include "LearnedCapacityBackupRestore.h"
 
-/* TODO: Improve log messages, e.g. "SRAM" is a lil non-friendly */
-/* Better: "Saved learned maximum capacity of <x> mAh to persist storage" */
-
 namespace device {
 namespace sony {
 namespace health {
 
 static constexpr int kBuffSize = 256;
+/* Battery capacity is given in microampere hours */
+/* Divide by 1000 to get milliampere hours("mAh") */
+static constexpr int kCapConversionFactor = 1000;
 
 LearnedCapacityBackupRestore::LearnedCapacityBackupRestore() {}
 
@@ -43,7 +48,7 @@ void LearnedCapacityBackupRestore::ReadFromPersistStorage() {
     std::string buffer;
 
     if (!android::base::ReadFileToString(std::string(kPersistChargeFullFile), &buffer)) {
-        LOG(ERROR) << "Cannot read battery capacity persist file from " << kPersistChargeFullFile ": " << strerror(errno);
+        LOG(ERROR) << "Cannot read battery capacity persist file from " << kPersistChargeFullFile << ": " << strerror(errno);
         return;
     }
 
@@ -51,8 +56,7 @@ void LearnedCapacityBackupRestore::ReadFromPersistStorage() {
         LOG(ERROR) << "Data format is wrong in the battery capacity persist file: " << buffer;
         return;
     }
-    /* TODO: Is it really mAh? */
-    LOG(VERBOSE) << " Read max battery capacity of " << buffer << " mAh from persist storage";
+    LOG(VERBOSE) << " Read max battery capacity of " << sw_cap_ / kCapConversionFactor << " mAh from persist storage";
 }
 
 void LearnedCapacityBackupRestore::SaveToPersistStorage() {
@@ -64,8 +68,7 @@ void LearnedCapacityBackupRestore::SaveToPersistStorage() {
         LOG(ERROR) << "Write battery capacity persist file error: " << strerror(errno);
         return;
     }
-    /* TODO: Is it really mAh? */
-    LOG(INFO) << "Saved learned max battery capacity of " << strData << " mAh to persist storage";
+    LOG(INFO) << "Saved learned max battery capacity of " << sw_cap_ / kCapConversionFactor << " mAh to persist storage";
 }
 
 void LearnedCapacityBackupRestore::ReadFromSRAM() {
@@ -82,8 +85,7 @@ void LearnedCapacityBackupRestore::ReadFromSRAM() {
         LOG(ERROR) << "Failed to parse sysfs battery capacity data: " << buffer;
         return;
     }
-    /* TODO: Is it really mAh? */
-    LOG(VERBOSE) << "Read learned max battery capaticy from sysfs: " << buffer << " mAh";
+    LOG(VERBOSE) << "Read learned max battery capaticy from sysfs: " << hw_cap_ / kCapConversionFactor << " mAh";
 }
 
 void LearnedCapacityBackupRestore::SaveToSRAM() {
@@ -95,8 +97,7 @@ void LearnedCapacityBackupRestore::SaveToSRAM() {
         LOG(ERROR) << "Write max battery capacity to sysfs error: " << strerror(errno);
         return;
     }
-    /* TODO: Is it really mAh? */
-    LOG(INFO) << "Successfully restored max battery capacity of " << strData << " mAh";
+    LOG(INFO) << "Successfully restored max battery capacity of " << hw_cap_ / kCapConversionFactor << " mAh";
 }
 
 void LearnedCapacityBackupRestore::UpdateAndSave() {

@@ -18,10 +18,12 @@
 #ifndef DEVICE_SONY_HEALTH_CYCLECOUNTBACKUPRESTORE_H
 #define DEVICE_SONY_HEALTH_CYCLECOUNTBACKUPRESTORE_H
 
-#include <android-base/file.h>
-#include <android-base/logging.h>
-#include <android-base/strings.h>
+#include <stdexcept>
 #include <string>
+
+#include <android-base/logging.h>
+#include <android-base/file.h>
+#include <android-base/strings.h>
 
 namespace device {
 namespace sony {
