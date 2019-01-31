@@ -13,22 +13,20 @@ cc_binary {
     static_libs: [
         "android.hardware.health@2.0-impl",
         "android.hardware.health@1.0-convert",
-        "libbatterymonitor",
-        // libhealthservice is needed for health_service_main()
-        "libhealthservice",
-        // Storage is needed by the HAL definition, use default
-        "libhealthstoragedefault",
+        "libbatterymonitor", // libhealthservice is needed for health_service_main()
+        "libhealthservice", // Storage is needed by the HAL definition, use default
         "libhealthboardcommon.sony",
         "libhealthd.sony",
+        "libhealthstoragedefault",
     ],
     shared_libs: [
+        "android.hardware.health@2.0",
         "libbase",
         "libcutils",
         "libhidlbase",
         "libhidltransport",
         "libhwbinder",
         "libutils",
-        "android.hardware.health@2.0",
     ],
     // HealthService.cpp never uses healthd_board_* functions, so the compiler
     // drops them. But BatteryMonitor.cpp and Health.cpp depend on those
@@ -61,18 +59,18 @@ cc_library_static {
         "-fexceptions",
     ],
     srcs: [
-        "HealthBoardCommon.cpp",
         "CycleCountBackupRestore.cpp",
+        "HealthBoardCommon.cpp",
         "LearnedCapacityBackupRestore.cpp",
     ],
     shared_libs: [
         "android.hardware.health@2.0",
         "libbase",
+        "libcutils",
         "libhidlbase",
         "libhidltransport",
         "libhwbinder",
         "liblog",
-        "libcutils",
         "libutils",
     ],
     header_libs: [
@@ -97,12 +95,12 @@ cc_library_static {
     shared_libs: [
         "android.hardware.health@2.0",
         "libbase",
+        "libcutils",
         "libhidlbase",
         "libhidltransport",
         "libhwbinder",
         "liblog",
         "libutils",
-        "libcutils",
     ],
     srcs: [
         "libhealthd_board.cpp",
