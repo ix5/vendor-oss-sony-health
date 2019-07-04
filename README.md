@@ -107,6 +107,7 @@ Relevant files and folders:
 - PMIC = [Power Management Integrated Circuit][pmic]
 - SPMI = [System Power Management Interface][spmi]
 - FCC = Full charge capacity
+- ESR = [Equivalent series resistance][esr]
 
 ## Sources
 
@@ -123,3 +124,4 @@ Relevant files and folders:
 [marlin]: https://android.googlesource.com/device/google/marlin/+/android-9.0.0_r22/health/
 [wahoo]: https://android.googlesource.com/device/google/wahoo/+/android-9.0.0_r22/health/
 [crosshatch]: https://android.googlesource.com/device/google/crosshatch/+/android-9.0.0_r22/health/
+[esr]: https://en.wikipedia.org/wiki/ESR_meter
