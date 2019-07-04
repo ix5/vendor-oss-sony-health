@@ -22,7 +22,28 @@
 /* For health_service_main() */
 #include <health2/service.h>
 
-#include <libhealthd_board/libhealthd_board.h>
+#include <batteryservice/BatteryService.h>
+#include <healthd/healthd.h>
+
+#include <healthboardcommon/HealthBoardCommon.h>
+
+/* healthd_board_init() is called from health@2.0:Health.cpp when
+ * the IHealth object is initialized */
+//void healthd_board_init(struct healthd_config *config) {
+// Discard the pointer:
+void healthd_board_init(struct healthd_config *) {
+    ::device::sony::health::health_board_battery_init();
+}
+
+/* Called from libbatterymonitor/BatteryMonitor.cpp */
+/* BatteryMonitor::update() { */
+/*     logthis = !healthd_board_battery_update(&props); */
+/* } */
+int healthd_board_battery_update(struct android::BatteryProperties *props) {
+    ::device::sony::health::health_board_battery_update(props);
+    // return 0 to log periodic polled battery status to kernel log
+    return 0;
+}
 
 int main() {
     /* Setting the instance name explicitly is better */
