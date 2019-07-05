@@ -56,12 +56,12 @@ void LearnedCapacityBackupRestore::ReadFromPersistStorage() {
     std::string buffer;
 
     if (!android::base::ReadFileToString(std::string(kPersistChargeFullFile), &buffer)) {
-        LOG(ERROR) << "Cannot read battery capacity persist file from " << kPersistChargeFullFile << ": " << strerror(errno);
+        LOG(WARNING) << "Cannot read battery capacity persist file from " << kPersistChargeFullFile << ": " << strerror(errno);
         return;
     }
 
     if (sscanf(buffer.c_str(), "%d", &sw_cap_) < 1) {
-        LOG(ERROR) << "Data format is wrong in the battery capacity persist file: " << buffer;
+        LOG(WARNING) << "Data format is wrong in the battery capacity persist file: " << buffer;
         return;
     }
     LOG(VERBOSE) << " Read max battery capacity of " << sw_cap_ / kCapConversionFactor << " mAh from persist storage";
@@ -73,7 +73,7 @@ void LearnedCapacityBackupRestore::SaveToPersistStorage() {
     snprintf(strData, kBuffSize, "%d", sw_cap_);
 
     if (!android::base::WriteStringToFile(strData, std::string(kPersistChargeFullFile))) {
-        LOG(ERROR) << "Write battery capacity persist file error: " << strerror(errno);
+        LOG(WARNING) << "Write battery capacity persist file error: " << strerror(errno);
         return;
     }
     LOG(INFO) << "Saved learned max battery capacity of " << sw_cap_ / kCapConversionFactor << " mAh to persist storage";
@@ -83,14 +83,14 @@ void LearnedCapacityBackupRestore::ReadFromSRAM() {
     std::string buffer;
 
     if (!android::base::ReadFileToString(std::string(kSysChargeFullFile), &buffer)) {
-        LOG(ERROR) << "Read max battery capacity from sysfs error: " << strerror(errno);
+        LOG(WARNING) << "Read max battery capacity from sysfs error: " << strerror(errno);
         return;
     }
 
     buffer = android::base::Trim(buffer);
 
     if (sscanf(buffer.c_str(), "%d", &hw_cap_) < 1) {
-        LOG(ERROR) << "Failed to parse sysfs battery capacity data: " << buffer;
+        LOG(WARNING) << "Failed to parse sysfs battery capacity data: " << buffer;
         return;
     }
     LOG(VERBOSE) << "Read learned max battery capaticy from sysfs: " << hw_cap_ / kCapConversionFactor << " mAh";
@@ -102,7 +102,7 @@ void LearnedCapacityBackupRestore::SaveToSRAM() {
     snprintf(strData, kBuffSize, "%d", hw_cap_);
 
     if (!android::base::WriteStringToFile(strData, std::string(kSysChargeFullFile))) {
-        LOG(ERROR) << "Write max battery capacity to sysfs error: " << strerror(errno);
+        LOG(WARNING) << "Write max battery capacity to sysfs error: " << strerror(errno);
         return;
     }
     LOG(INFO) << "Successfully restored max battery capacity of " << hw_cap_ / kCapConversionFactor << " mAh";

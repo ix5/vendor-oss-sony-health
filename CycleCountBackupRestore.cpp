@@ -36,8 +36,8 @@ CycleCountBackupRestore::CycleCountBackupRestore() {
 }
 
 void CycleCountBackupRestore::Restore() {
-    /* Our battery driver doesn't seem to report a battery
-     * serial number, so we have to instruct users to wipe
+    /* Sony's battery driver doesn't seem to report a battery
+     * serial number, so we'll have to instruct users to wipe
      * /mnt/vendor/persist/battery/ when they swap batteries */
     Read(kPersistCycleFile, sw_cycles_);
     Read(kSysCycleFile, hw_cycles_);
@@ -56,7 +56,6 @@ void CycleCountBackupRestore::Backup(int battery_level) {
     saved_soc_ = battery_level;
     // To avoid writting file too often just rate limit it
     if (soc_inc_ >= kCCBackupTrigger) {
-        LOG(VERBOSE) << "CC: Triggered Read(kSysCycleFile) and UpdateAndSave() !";
         Read(kSysCycleFile, hw_cycles_);
         UpdateAndSave();
         soc_inc_ = 0;
@@ -67,7 +66,7 @@ void CycleCountBackupRestore::Read(const std::string &path, int &cycles) {
     std::string buffer;
 
     if (!android::base::ReadFileToString(path, &buffer)) {
-        LOG(ERROR) << "Failed to read battery cycles from " << path;
+        LOG(WARNING) << "Failed to read battery cycles from " << path;
         return;
     }
 
@@ -75,10 +74,10 @@ void CycleCountBackupRestore::Read(const std::string &path, int &cycles) {
     try {
         cycles = std::stoi(buffer);
     } catch (std::out_of_range &e) {
-        LOG(ERROR) << "Battery cycle count in persist storage file is out of bounds: " << path;
+        LOG(WARNING) << "Battery cycle count in persist storage file is out of bounds: " << path;
         return;
     } catch (std::invalid_argument &e) {
-        LOG(ERROR) << "Data format is wrong in persist storage file: " << path;
+        LOG(WARNING) << "Data format is wrong in persist storage file: " << path;
         return;
     }
     LOG(VERBOSE) << "Read " << cycles << " battery cycles from " << path;
@@ -88,7 +87,7 @@ void CycleCountBackupRestore::Write(int cycles, const std::string &path) {
     std::string str_data = std::to_string(cycles);
 
     if (!android::base::WriteStringToFile(str_data, path)) {
-        LOG(ERROR) << "Write battery cycles to " << path << " error: " << strerror(errno);
+        LOG(WARNING) << "Error writing battery cycles to " << path << ": " << strerror(errno);
         return;
     }
     LOG(INFO) << "Wrote " << str_data << " battery cycles to " << path;
