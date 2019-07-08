@@ -20,6 +20,12 @@
  * limitations under the License.
  */
 
+#include <stdexcept>
+
+#include <android-base/file.h>
+#include <android-base/logging.h>
+#include <android-base/strings.h>
+
 #include "CycleCountBackupRestore.h"
 
 namespace device {
@@ -29,8 +35,8 @@ namespace health {
 static constexpr int kCCBackupTrigger = 20;
 
 CycleCountBackupRestore::CycleCountBackupRestore() {
-    sw_cycles_ = 0;
-    hw_cycles_ = 0;
+    persist_cycles = 0;
+    sysfs_cycles = 0;
     saved_soc_ = -1;
     soc_inc_ = 0;
 }
@@ -39,8 +45,8 @@ void CycleCountBackupRestore::Restore() {
     /* Sony's battery driver doesn't seem to report a battery
      * serial number, so we'll have to instruct users to wipe
      * /mnt/vendor/persist/battery/ when they swap batteries */
-    Read(kPersistCycleFile, sw_cycles_);
-    Read(kSysCycleFile, hw_cycles_);
+    Read(kPersistCycleFile, persist_cycles);
+    Read(kSysCycleFile, sysfs_cycles);
     UpdateAndSave();
 }
 
@@ -56,7 +62,7 @@ void CycleCountBackupRestore::Backup(int battery_level) {
     saved_soc_ = battery_level;
     // To avoid writting file too often just rate limit it
     if (soc_inc_ >= kCCBackupTrigger) {
-        Read(kSysCycleFile, hw_cycles_);
+        Read(kSysCycleFile, sysfs_cycles);
         UpdateAndSave();
         soc_inc_ = 0;
     }
@@ -94,12 +100,12 @@ void CycleCountBackupRestore::Write(int cycles, const std::string &path) {
 }
 
 void CycleCountBackupRestore::UpdateAndSave() {
-    if (hw_cycles_ < sw_cycles_) {
-        hw_cycles_ = sw_cycles_;
-        Write(hw_cycles_, kSysCycleFile);
-    } else if (hw_cycles_ > sw_cycles_) {
-        sw_cycles_ = hw_cycles_;
-        Write(sw_cycles_, kPersistCycleFile);
+    if (sysfs_cycles < persist_cycles) {
+        sysfs_cycles = persist_cycles;
+        Write(sysfs_cycles, kSysCycleFile);
+    } else if (sysfs_cycles > persist_cycles) {
+        persist_cycles = sysfs_cycles;
+        Write(persist_cycles, kPersistCycleFile);
     }
 }
 
