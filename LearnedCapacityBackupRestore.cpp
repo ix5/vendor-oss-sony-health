@@ -67,7 +67,13 @@ void LearnedCapacityBackupRestore::ReadFromPersistStorage() {
         return;
     }
 
-    if (sscanf(buffer.c_str(), "%d", &sw_cap_) < 1) {
+    buffer = ::android::base::Trim(buffer);
+    try {
+        persist_capacity = std::stoi(buffer);
+    } catch (std::out_of_range &e) {
+        LOG(WARNING) << "Battery capacity in persist storage file is out of bounds: " << buffer;
+        return;
+    } catch (std::invalid_argument &e) {
         LOG(WARNING) << "Data format is wrong in the battery capacity persist file: " << buffer;
         return;
     }
