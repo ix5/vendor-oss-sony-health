@@ -6,55 +6,20 @@ cc_binary {
     cflags: [
         "-Wall",
         "-Werror",
+        "-Wno-unused",
+        "-fexceptions",
     ],
     srcs: [
         "HealthService.cpp",
+        "CycleCountBackupRestore.cpp",
+        "LearnedCapacityBackupRestore.cpp",
     ],
     static_libs: [
         "android.hardware.health@2.0-impl",
         "android.hardware.health@1.0-convert",
         "libbatterymonitor", // libhealthservice is needed for health_service_main()
         "libhealthservice", // Storage is needed by the HAL definition, use default
-        "libhealthboardcommon.sony",
         "libhealthstoragedefault",
-    ],
-    shared_libs: [
-        "android.hardware.health@2.0",
-        "libbase",
-        "libcutils",
-        "libhidlbase",
-        "libhidltransport",
-        "libhwbinder",
-        "libutils",
-    ],
-
-    // Only availbale in current Android Q master.
-    // Nead to remove health section from common/vintf/manifext.xml as well
-    // once we decide to use this instead.
-    //vintf_fragments: [
-    //    "manifest_android.hardware.health@2.0.xml",
-    //],
-
-    overrides: [
-        "healthd",
-    ],
-}
-
-cc_library_static {
-    // Vendor-specific functions
-    name: "libhealthboardcommon.sony",
-    // recovery_available is not yet available in Pie, need to use master or wait for Q
-    //recovery_available: true,
-    vendor_available: true,
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-fexceptions",
-    ],
-    srcs: [
-        "CycleCountBackupRestore.cpp",
-        "HealthBoardCommon.cpp",
-        "LearnedCapacityBackupRestore.cpp",
     ],
     shared_libs: [
         "android.hardware.health@2.0",
@@ -70,6 +35,15 @@ cc_library_static {
         // We only need BatteryService.h for the common lib
         "libbatteryservice_headers",
     ],
-    // Needed to find own headers
-    local_include_dirs: ["include"],
+
+    // Only availbale in current Android Q master.
+    // Nead to remove health section from common/vintf/manifext.xml as well
+    // once we decide to use this instead.
+    //vintf_fragments: [
+    //    "manifest_android.hardware.health@2.0.xml",
+    //],
+
+    overrides: [
+        "healthd",
+    ],
 }
