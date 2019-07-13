@@ -24,6 +24,7 @@ namespace device {
 namespace sony {
 namespace health {
 
+
 class StorageStats {
    public:
     StorageStats();
@@ -32,15 +33,62 @@ class StorageStats {
     void GetDiskStats(std::vector<DiskStats> &vec_stats);
 
    private:
+
     void GetStorageVariant();
     void FillStoragePaths();
     bool ResolveEmmcPaths();
+
+    void ReadEmmcEol(StorageInfo *storage_info);
+    void ReadEmmcLifetimes(StorageInfo *storage_info);
+    void ReadEmmcVersion(StorageInfo *storage_info);
+    void ReadUfsVersion(StorageInfo *storage_info);
 
     enum storagevariants {
         STORAGE_TYPE_EMMC = 1,
         STORAGE_TYPE_UFS = 2
     };
     int kStorageVariant;
+
+    // UGLY
+    /* const std::string kBlockPath; */
+    /* const std::string kSocPath; */
+    std::string kBlockPath;
+    std::string kSocPath;
+
+    std::string kEmmcDir;
+    std::string kEmmcSocDir;
+    std::string kEmmcEolFile;       // Format: 01
+    std::string kEmmcLifetimeFile;  // Format: 0x02 0x02
+    std::string kEmmcVersionFile;   // Format: 0x8
+    std::string kDiskStatsFile;
+    /* const std::string kEmmcName; */
+    std::string kEmmcName = "MMC0";
+    /* TODO: Average voltage */
+
+    std::string kUfsDir;
+    std::string kUfsSocDir;
+    std::string kUfsEolFile;
+    std::string kUfsLifetimeAFile;
+    std::string kUfsLifetimeBFile;
+    std::string kUfsVersionFile;
+    /* const std::string kUfsName; */
+    std::string kUfsName = "UFS0";
+
+    // From system/core/storaged/storaged_info.cpp
+    /* const char *kEmmcVersionString[9]; */
+    const char *kEmmcVersionString[9] = {
+        "4.0", "4.1", "4.2", "4.3", "Obsolete", "4.41", "4.5", "5.0", "5.1"
+    };
+
+    bool kStoragePathsAvailable;
+
+    // Only log errors reading/scanning stats files once
+    // TODO: Decide whether to ditch these and spam logcat to *really* alert users
+    bool kLoggedErrorForPathsUnavailable;
+    bool kLoggedErrorForEol;
+    bool kLoggedErrorForVersion;
+    bool kLoggedErrorForLifetime;
+    bool kLoggedErrorForDiskStats;
 };
 
 }  // namespace health

@@ -50,47 +50,56 @@ using android::hardware::health::V2_0::StorageInfo;
 static HealthTestingMock mock;
 #endif  // HEALTH_DEBUG
 
-static const std::string kBlockPath = "/sys/block/mmcblk0";
-/* Expected to resolve to e.g. */
-/* /sys/devices/platform/soc/7464900.sdhci/mmc_host/mmc0/mmc0:0001/block/mmcblk0 */
-/* We want the raw emmc/ufs infos from here as well: */
-/* /sys/devices/platform/soc/7464900.sdhci/mmc_host/mmc0/mmc0:0001/ */
+StorageStats::StorageStats() {
+    /* static const std::string kBlockPath = "/sys/block/mmcblk0"; */
+    kBlockPath = "/sys/block/mmcblk0";
+    /* Expected to resolve to e.g. */
+    /* /sys/devices/platform/soc/7464900.sdhci/mmc_host/mmc0/mmc0:0001/block/mmcblk0 */
+    /* We want the raw emmc/ufs infos from here as well: */
+    /* /sys/devices/platform/soc/7464900.sdhci/mmc_host/mmc0/mmc0:0001/ */
 
-// Moved from "/sys/devices/soc" on 4.4
-static const std::string kSocPath = "/sys/devices/platform/soc";
+    // Moved from "/sys/devices/soc" on 4.4
+    /* static const std::string kSocPath = "/sys/devices/platform/soc"; */
+    kSocPath = "/sys/devices/platform/soc";
 
-static std::string kEmmcDir;
-static std::string kEmmcSocDir;
-static std::string kEmmcEolFile;       // Format: 01
-static std::string kEmmcLifetimeFile;  // Format: 0x02 0x02
-static std::string kEmmcVersionFile;   // Format: 0x8
-static std::string kDiskStatsFile;
-static const std::string kEmmcName = "MMC0";
-/* TODO: Average voltage */
+    //static std::string kEmmcDir;
+    //static std::string kEmmcSocDir;
+    //static std::string kEmmcEolFile;       // Format: 01
+    //static std::string kEmmcLifetimeFile;  // Format: 0x02 0x02
+    //static std::string kEmmcVersionFile;   // Format: 0x8
+    //static std::string kDiskStatsFile;
+    /* static const std::string kEmmcName = "MMC0"; */
+    //kEmmcName = "MMC0";
+    /* TODO: Average voltage */
 
-static std::string kUfsDir;
-static std::string kUfsSocDir;
-static std::string kUfsEolFile;
-static std::string kUfsLifetimeAFile;
-static std::string kUfsLifetimeBFile;
-static std::string kUfsVersionFile;
-static const std::string kUfsName = "UFS0";
+    //static std::string kUfsDir;
+    //static std::string kUfsSocDir;
+    //static std::string kUfsEolFile;
+    //static std::string kUfsLifetimeAFile;
+    //static std::string kUfsLifetimeBFile;
+    //static std::string kUfsVersionFile;
+    /* static const std::string kUfsName = "UFS0"; */
+    //kUfsName = "UFS0";
 
-// From system/core/storaged/storaged_info.cpp
-static const char *kEmmcVersionString[9] = {
-    "4.0", "4.1", "4.2", "4.3", "Obsolete", "4.41", "4.5", "5.0", "5.1"};
+    //static bool kStoragePathsAvailable;
 
-static bool kStoragePathsAvailable;
+    // Only log errors reading/scanning stats files once
+    // TODO: Decide whether to ditch these and spam logcat to *really* alert users
+    kLoggedErrorForPathsUnavailable = false;
+    kLoggedErrorForEol = false;
+    kLoggedErrorForVersion = false;
+    kLoggedErrorForLifetime = false;
+    kLoggedErrorForDiskStats = false;
 
-// Only log errors reading/scanning stats files once
-// TODO: Decide whether to ditch these and spam logcat to *really* alert users
-static bool kLoggedErrorForPathsUnavailable = false;
-static bool kLoggedErrorForEol = false;
-static bool kLoggedErrorForVersion = false;
-static bool kLoggedErrorForLifetime = false;
-static bool kLoggedErrorForDiskStats = false;
+    LOG(WARNING) << "kBlockPath = " << kBlockPath;
+    LOG(WARNING) << "kEmmcDir = " << kEmmcDir;
+    LOG(WARNING) << "Constructor: Running GetStorageVariant()";
+    GetStorageVariant();
+    LOG(WARNING) << "Constructor: Running FillStoragePaths()";
+    FillStoragePaths();
+}
 
-void read_emmc_eol(StorageInfo *storage_info) {
+void StorageStats::ReadEmmcEol(StorageInfo *storage_info) {
     std::string buffer;
     if (!ReadFileToString(kEmmcEolFile, &buffer)) {
         if (!kLoggedErrorForEol) {
@@ -120,7 +129,7 @@ void read_emmc_eol(StorageInfo *storage_info) {
     }
 }
 
-void read_emmc_version(std::string &storage_version) {
+void StorageStats::ReadEmmcVersion(StorageInfo* storage_info) {
     uint16_t version;
     std::string buffer;
     if (!ReadFileToString(kEmmcVersionFile, &buffer)) {
@@ -145,10 +154,10 @@ void read_emmc_version(std::string &storage_version) {
         }
         return;
     }
-    storage_version = "emmc " + std::string(kEmmcVersionString[version]);
+    storage_info->version = "emmc " + std::string(kEmmcVersionString[version]);
 }
 
-void read_emmc_lifetimes(StorageInfo *storage_info) {
+void StorageStats::ReadEmmcLifetimes(StorageInfo *storage_info) {
     // TODO: Use individual pointers
     std::string lifetimes;
     uint16_t lifetime_a = 0, lifetime_b = 0;
@@ -188,7 +197,7 @@ bool read_value_from_file(const std::string &path, T *field) {
     return true;
 }
 
-void read_ufs_version(StorageInfo *storage_info) {
+void StorageStats::ReadUfsVersion(StorageInfo *storage_info) {
     // TODO: Maybe use decimal values, but it seems hex is the way to go
     std::string version;
     if (!ReadFileToString(kUfsVersionFile, &version)) {
@@ -200,12 +209,6 @@ void read_ufs_version(StorageInfo *storage_info) {
     }
     version = android::base::Trim(version);
     storage_info->version = "ufs " + version;  // "ufs 0x08"
-}
-
-
-StorageStats::StorageStats() {
-    GetStorageVariant();
-    FillStoragePaths();
 }
 
 void StorageStats::GetStorageVariant() {
@@ -312,16 +315,16 @@ void StorageStats::GetStorageInfo(std::vector<StorageInfo> &vec_storage_info) {
 
     switch (kStorageVariant) {
         case STORAGE_TYPE_EMMC:
-            read_emmc_version(*(storage_info->version));
-            read_emmc_eol(*(storage_info->eol));
-            read_emmc_lifetimes(storage_info);
+            ReadEmmcVersion(storage_info);
+            ReadEmmcEol(storage_info);
+            ReadEmmcLifetimes(storage_info);
             storage_info->attr.name = kEmmcName;
         case STORAGE_TYPE_UFS:
             // Not available since there is no kernel support for UFS health
             // reporting as of 2019-07-12
             return;
             /*
-            read_ufs_version(storage_info);
+            ReadUfsVersion(storage_info);
             read_value_from_file(kUfsEolFile, &(storage_info)->eol);
             read_value_from_file(kUfsLifetimeAFile, &(storage_info)->lifetimeA);
             read_value_from_file(kUfsLifetimeBFile, &(storage_info)->lifetimeB);
